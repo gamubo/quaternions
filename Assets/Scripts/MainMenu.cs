@@ -8,10 +8,10 @@ public class MainMenu : MonoBehaviour
 	 * 2 - Рыскание
 	 * 3 - Тангаж
     */
-	private float[] sliderValues;
+	public float[] sliderValues;
 
-	private float minValue = 0.0f;
-	private float maxValue = 90.0f;
+	private float minValue = -45.0f;
+	private float maxValue = 45.0f;
 
 	void Start ()
 	{
