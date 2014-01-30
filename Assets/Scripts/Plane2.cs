@@ -9,11 +9,11 @@ public class Plane2 : MonoBehaviour {
 	private List<Quaternion> currentVerices;
 
 	void Start () {
-		Quaternion quaternion1 = new Quaternion (2, 1, 3);
-		Quaternion quaternion2 = new Quaternion (-1.667, 0.333, 0.333, 0);
+		Quaternion quaternion1 = new Quaternion (2, 1, 3, 0);
+		Quaternion quaternion2 = new Quaternion (-1.667f, 0.333f, 0.333f, 0.0f);
 
-		Quaternion quaternion3 = new Quaternion (1, 2, 3);
-		Quaternion quaternion4 = new Quaternion (-1, 1, -1);
+		Quaternion quaternion3 = new Quaternion (1, 2, 3, 0);
+		Quaternion quaternion4 = new Quaternion (-1, 1, -1, 0);
 
 		currentVerices.Add (quaternion1);
 		currentVerices.Add (quaternion2);
@@ -30,5 +30,8 @@ public class Plane2 : MonoBehaviour {
 
 	}
 
-	private void NSP();
+	private void NSP()
+	{
+
+	}
 }
