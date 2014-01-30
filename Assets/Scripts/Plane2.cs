@@ -9,6 +9,9 @@ public class Plane2 : MonoBehaviour {
 	private List<Quaternion> currentVerices;
 
 	void Start () {
+		initialVertices = new List<Quaternion>();
+		currentVerices = new List<Quaternion>();
+
 		Quaternion quaternion1 = new Quaternion (2, 1, 3, 0);
 		Quaternion quaternion2 = new Quaternion (-1.667f, 0.333f, 0.333f, 0.0f);
 
@@ -21,7 +24,7 @@ public class Plane2 : MonoBehaviour {
 		initialVertices.Add (quaternion3);
 		initialVertices.Add (quaternion4);
 
-		Quaternion result = new Quaternion ();
+		Quaternion nDotProduct = new Quaternion ();
 
 
 	}
