@@ -8,6 +8,12 @@ public class Plane2 : MonoBehaviour {
 	private List<Quaternion> initialVertices;
 	private List<Quaternion> currentVerices;
 
+	void OnGUI() {
+		if (GUI.Button (new Rect (100, 350, 50, 30), "Старт")) {
+			// Starting algorithm
+		}
+	}
+
 	void Start () {
 		initialVertices = new List<Quaternion>();
 		currentVerices = new List<Quaternion>();
