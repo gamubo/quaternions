@@ -9,71 +9,85 @@ public class Plane2 : MonoBehaviour {
 	private List<Quaternion> currentVertices;
 
 	void OnGUI() {
-		if (GUI.Button (new Rect (100, 350, 50, 30), "Старт")) {
-			// Starting algorithm	
-			initialVertices = new List<Quaternion>();
-			currentVertices = new List<Quaternion>();
-			
-			Quaternion quaternion1 = new Quaternion (2, 1, 3, 0);
-			Quaternion quaternion2 = new Quaternion (-1.667f, 0.333f, 0.333f, 0.0f);
-			
-			Quaternion quaternion3 = new Quaternion (1, 2, 3, 0);
-			Quaternion quaternion4 = new Quaternion (-1, 1, -1, 0);
-			
-			currentVertices.Add (quaternion1);
-			currentVertices.Add (quaternion2);
-			
-			initialVertices.Add (quaternion3);
-			initialVertices.Add (quaternion4);
+		if (GUI.Button (new Rect (100, 350, 50, 30), "Старт")) {			
+			bool enableAlgorithm = false;
 
+			getVerticesContour(plane1);
 
-			// Algorithm
-			if (currentVertices.Count != initialVertices.Count)
-				throw new System.Exception("Contours must have the same size!");
-			
-			float lenProduct = getContourLength(currentVertices) * getContourLength(initialVertices);
+			if (enableAlgorithm) {
+				// Starting algorithm	
+				initialVertices = new List<Quaternion>();
+				currentVertices = new List<Quaternion>();
 
-			float mainCos = 0;
-			Quaternion hypc = new Quaternion();
-			for (int i = 0; i < currentVertices.Count; ++i) {
-				Quaternion vec1 = currentVertices[i];
-				Quaternion vec2 = initialVertices[i];
+				// Algorithm
+				if (currentVertices.Count != initialVertices.Count)
+					throw new System.Exception("Contours must have the same size!");
 				
-				float vec1Length = getVectorLength(vec1);
-				float vec2Length = getVectorLength(vec2);
+				float lenProduct = getContourLength(currentVertices) * getContourLength(initialVertices);
 
-				float dotProduct = getVectorsDotProduct(vec1, vec2);
+				float mainCos = 0;
+				Quaternion hypc = new Quaternion();
+				for (int i = 0; i < currentVertices.Count; ++i) {
+					Quaternion vec1 = currentVertices[i];
+					Quaternion vec2 = initialVertices[i];
+					
+					float vec1Length = getVectorLength(vec1);
+					float vec2Length = getVectorLength(vec2);
 
-				float currCos = dotProduct / (vec1Length * vec2Length);
-				float currSin = Mathf.Sin(Mathf.Acos(currCos));
+					float dotProduct = getVectorsDotProduct(vec1, vec2);
 
-				float factor = currSin * vec1Length * vec2Length;
-				Quaternion normal = getNormal(vec1, vec2);
+					float currCos = dotProduct / (vec1Length * vec2Length);
+					float currSin = Mathf.Sin(Mathf.Acos(currCos));
 
-				hypc.x += -normal.x * factor;
-				hypc.y += -normal.y * factor;
-				hypc.z += -normal.z * factor;
-				mainCos += dotProduct;
+					float factor = currSin * vec1Length * vec2Length;
+					Quaternion normal = getNormal(vec1, vec2);
+
+					hypc.x += normal.x * factor;
+					hypc.y += normal.y * factor;
+					hypc.z += normal.z * factor;
+					mainCos += dotProduct;
+				}
+				// Правая часть НСП
+				hypc.x /= lenProduct; 
+				hypc.y /= lenProduct;
+				hypc.z /= lenProduct; 
+
+				// Косинус (левая часть НСП)
+				mainCos /= lenProduct; 
+
+				// Находим усредненную нормаль
+				float hypcLen = getVectorLength(hypc);
+				Quaternion midNormal = hypc; 
+				midNormal.x /= hypcLen;
+				midNormal.y /= hypcLen;
+				midNormal.z /= hypcLen; 
+
+				// Находим вращающий кватернион b
+				float halfAngle = Mathf.Acos(mainCos) / 2.0f;
+				float halfCos = Mathf.Cos(halfAngle);
+				float halfSin = Mathf.Sin(halfAngle);
+
+				Quaternion rotationQuat = new Quaternion(midNormal.x * halfSin, 
+				                                         midNormal.y * halfSin, 
+				                                         midNormal.z * halfSin, 
+				                                         halfCos);
+				Quaternion rotationQuatInvert = new Quaternion(-rotationQuat.x,
+				                                               -rotationQuat.y,
+				                                               -rotationQuat.z,
+				                                               rotationQuat.w);
+
+				
+				List<Quaternion> newVertices = new List<Quaternion>();
+				for (int i = 0; i < currentVertices.Count; ++i) {
+					Quaternion currVec = currentVertices[i];
+					Quaternion tempVec = getQuaternionsVectorProduct(rotationQuat, currVec);
+					Quaternion newVec = getQuaternionsVectorProduct(tempVec, rotationQuatInvert);
+					newVertices.Add(newVec);
+				}
+				currentVertices = newVertices;
+
+				// TODO: Построить самолет по новым координатам из currentVertices
 			}
-			hypc.x /= lenProduct; // Правая часть НСП
-			hypc.y /= lenProduct;
-			hypc.z /= lenProduct; 
-
-			mainCos /= lenProduct; // Косинус (левая часть НСП)
-
-			Debug.Log("Main cos = " + mainCos);
-			Debug.Log("Vec.X = " + hypc.x);
-			Debug.Log("Vec.Y = " + hypc.y);
-			Debug.Log("Vec.Z = " + hypc.z);
-
-			//float halfAngle = Mathf.Acos(mainCos) / 2.0f;
-			//float halfCos = Mathf.Cos(halfAngle);
-			//float halfSin = Mathf.Sin(halfAngle);
-
-			//Quaternion directionalVec = hypc; // Не знаю, как найти усредненную нормаль из гиперкомплексной части (второй лист Фурмана, а40)
-
-			//Quaternion rotationQuat = new Quaternion(hypc.x * halfSin, hypc.y * halfSin, hypc.z * halfSin, halfCos);
-			//Quaternion rotationQuatInvert = new Quaternion(-hypc.x * halfSin, -hypc.y * halfSin, -hypc.z * halfSin, halfCos);
 		}
 	}
 
@@ -112,5 +126,30 @@ public class Plane2 : MonoBehaviour {
 		normal.z /= len;
 
 		return normal;  // Возвращаем результат (направление, куда направлен полигон - нормаль)
+	}
+	
+	private Quaternion getQuaternionsVectorProduct(Quaternion quat1, Quaternion quat2) {	
+		Quaternion result = new Quaternion();	
+
+		result.x = quat1.w * quat2.x + quat1.x * quat2.w + quat1.y * quat2.z - quat1.z * quat2.y;
+		result.y = quat1.w * quat2.y - quat1.x * quat2.z + quat1.y * quat2.w + quat1.z * quat2.x;
+		result.z = quat1.w * quat2.z + quat1.x * quat2.y - quat1.y * quat2.x + quat1.z * quat2.w;
+		result.w = quat1.w * quat2.w - quat1.x * quat2.x - quat1.y * quat2.y - quat1.z * quat2.z;
+
+		return result;
+	}
+
+	private List<Quaternion> getVerticesContour(MonoBehaviour gameObject) {
+		List<Quaternion> contour = new List<Quaternion> ();		
+		MeshFilter viewedModelFilter = (MeshFilter)gameObject.GetComponent("MeshFilter");
+		Mesh viewedModel = viewedModelFilter.mesh;
+		Vector3[] vertices = viewedModel.vertices;
+
+		for (int i = 0; i < vertices.Length; ++i) {
+			Debug.Log("X = " + vertices[i].x);
+			Debug.Log("Y = " + vertices[i].y);
+			Debug.Log("Z = " + vertices[i].z);
+		}
+		return contour;
 	}
 }
