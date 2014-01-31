@@ -146,9 +146,11 @@ public class Plane2 : MonoBehaviour {
 		Vector3[] vertices = viewedModel.vertices;
 
 		for (int i = 0; i < vertices.Length; ++i) {
-			Debug.Log("X = " + vertices[i].x);
-			Debug.Log("Y = " + vertices[i].y);
-			Debug.Log("Z = " + vertices[i].z);
+			Vector3 vertex = gameObject.transform.TransformPoint(vertices[i]);
+
+			Debug.Log("X = " + vertex.x);
+			Debug.Log("Y = " + vertex.y);
+			Debug.Log("Z = " + vertex.z);
 		}
 		return contour;
 	}
