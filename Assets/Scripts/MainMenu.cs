@@ -35,7 +35,6 @@ public class MainMenu : MonoBehaviour
 			Rect sliderRectangle = new Rect(left, position, width, height);
 
 			string sliderText = "";
-			float sliderValue = 0.0f;
 
 			if (i == 0) {
 				sliderText = "Крен:";
