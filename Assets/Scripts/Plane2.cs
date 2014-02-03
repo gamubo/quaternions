@@ -4,12 +4,13 @@ using System.Collections.Generic;
 
 public class Plane2 : MonoBehaviour {
 	public Plane1 plane1;
+	public GameObject plane2Point;
 	
 	private List<Quaternion> initialVertices;
 	private List<Quaternion> currentVertices;
 
 	// Отступ текущей модели от наблюдаемой
-	private Vector3 correctionVect = new Vector3(0, 0, -2);
+	private Vector3 correctionVect;
 
 	// Последнее полученное значение угла между моделями (для проверки возможности дальшейшего уменьшения угла)
 	private float lastAngle = 0;
@@ -18,6 +19,10 @@ public class Plane2 : MonoBehaviour {
 	// Флаг, показывающий, нужно ли делать еще поворот
 	private bool needToMakeAnotherIteration;
 
+	void Start() {
+		prepareForCurrentPositions ();
+	}
+
 	void OnGUI() {
 		if (GUI.Button (new Rect (10, 340, 100, 35), "Согласовать")) {
 			needToMakeAnotherIteration = true;
@@ -25,8 +30,21 @@ public class Plane2 : MonoBehaviour {
 				doAngularCoordination();
 			}
 		} else if (GUI.Button (new Rect (120, 340, 115, 35), "Одна итерация")) {
+			prepareForCurrentPositions();
 			doAngularCoordination();
 		}
+	}
+
+	private void movePlaneBehindTarget() {
+		transform.position = plane2Point.transform.position;
+	}
+
+	private void prepareForCurrentPositions() {
+		movePlaneBehindTarget ();
+		
+		correctionVect = new Vector3 (Mathf.Abs(plane1.transform.position.x) + Mathf.Abs(transform.position.x), 
+		                              Mathf.Abs(plane1.transform.position.y) + Mathf.Abs(transform.position.y), 
+		                              Mathf.Abs(plane1.transform.position.z) + Mathf.Abs(transform.position.z));
 	}
 
 	private void doAngularCoordination() {
