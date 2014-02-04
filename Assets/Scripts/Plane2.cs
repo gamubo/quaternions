@@ -11,7 +11,7 @@ public class Plane2 : MonoBehaviour {
 	private List<Quaternion> currentVertices;
 
 	// Отступ текущей модели от наблюдаемой
-	private Vector3 correctionVect/* = new Vector3(0, 0, -2.0f)*/;
+	private Vector3 correctionVect;
 
 	// Последнее полученное значение угла между моделями (для проверки возможности дальшейшего уменьшения угла)
 	private float lastAngle = 0;
