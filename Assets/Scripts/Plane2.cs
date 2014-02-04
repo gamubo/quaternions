@@ -10,7 +10,7 @@ public class Plane2 : MonoBehaviour {
 	private List<Quaternion> currentVertices;
 
 	// Отступ текущей модели от наблюдаемой
-	private Vector3 correctionVect;
+	private Vector3 correctionVect/* = new Vector3(0, 0, -2.0f)*/;
 
 	// Последнее полученное значение угла между моделями (для проверки возможности дальшейшего уменьшения угла)
 	private float lastAngle = 0;
@@ -19,10 +19,6 @@ public class Plane2 : MonoBehaviour {
 	// Флаг, показывающий, нужно ли делать еще поворот
 	private bool needToMakeAnotherIteration;
 
-	void Start() {
-		prepareForCurrentPositions ();
-	}
-
 	void OnGUI() {
 		if (GUI.Button (new Rect (10, 340, 100, 35), "Согласовать")) {
 			needToMakeAnotherIteration = true;
@@ -30,24 +26,25 @@ public class Plane2 : MonoBehaviour {
 				doAngularCoordination();
 			}
 		} else if (GUI.Button (new Rect (120, 340, 115, 35), "Одна итерация")) {
-			prepareForCurrentPositions();
 			doAngularCoordination();
 		}
 	}
 
 	private void movePlaneBehindTarget() {
 		transform.position = plane2Point.transform.position;
+
+		updateCorrectionVect();
 	}
 
-	private void prepareForCurrentPositions() {
-		movePlaneBehindTarget ();
-		
-		correctionVect = new Vector3 (Mathf.Abs(plane1.transform.position.x) + Mathf.Abs(transform.position.x), 
-		                              Mathf.Abs(plane1.transform.position.y) + Mathf.Abs(transform.position.y), 
-		                              Mathf.Abs(plane1.transform.position.z) + Mathf.Abs(transform.position.z));
+	private void updateCorrectionVect() {
+		correctionVect = new Vector3 (transform.position.x - plane1.transform.position.x, 
+		                              transform.position.y - plane1.transform.position.y, 
+		                              transform.position.z - plane1.transform.position.z);
 	}
 
 	private void doAngularCoordination() {
+		movePlaneBehindTarget();
+
 		// Считываем вершины мешей в массив, как кватернионы 
 		// (при этом корректируем координаты модели-образца в соответствии с отступом от текущей модели)
 		initialVertices = getVerticesContour(plane1, correctionVect);	
