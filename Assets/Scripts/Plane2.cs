@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Plane2 : MonoBehaviour {
 	public Plane1 plane1;
 	public GameObject plane2Point;
+	public int movementSpeed;
 	
 	private List<Quaternion> initialVertices;
 	private List<Quaternion> currentVertices;
@@ -23,15 +24,20 @@ public class Plane2 : MonoBehaviour {
 		if (GUI.Button (new Rect (10, 340, 100, 35), "Согласовать")) {
 			needToMakeAnotherIteration = true;
 			while (needToMakeAnotherIteration) {
-				doAngularCoordination();
+				doAngularCoordination(true);
 			}
 		} else if (GUI.Button (new Rect (120, 340, 115, 35), "Одна итерация")) {
-			doAngularCoordination();
+			doAngularCoordination(false);
 		}
 	}
 
-	private void movePlaneBehindTarget() {
-		transform.position = plane2Point.transform.position;
+	private void movePlaneBehindTarget(bool isInstantMovement) {
+		if (!isInstantMovement) {
+			float step = movementSpeed * Time.deltaTime;
+			transform.position = Vector3.MoveTowards (transform.position, plane2Point.transform.position, step);
+		} else {
+			transform.position = plane2Point.transform.position;
+		}
 
 		updateCorrectionVect();
 	}
@@ -42,8 +48,8 @@ public class Plane2 : MonoBehaviour {
 		                              transform.position.z - plane1.transform.position.z);
 	}
 
-	private void doAngularCoordination() {
-		movePlaneBehindTarget();
+	private void doAngularCoordination(bool isInstantMovement) {
+		movePlaneBehindTarget(isInstantMovement);
 
 		// Считываем вершины мешей в массив, как кватернионы 
 		// (при этом корректируем координаты модели-образца в соответствии с отступом от текущей модели)
